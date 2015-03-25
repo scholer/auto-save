@@ -36,6 +36,8 @@ import sublime
 import sublime_plugin
 from threading import Timer
 
+import logging
+logger = logging.getLogger(__name__)
 
 settings_filename = "auto_save.sublime-settings"
 on_modified_field = "auto_save_on_modified"
@@ -51,13 +53,12 @@ class AutoSaveListener(sublime_plugin.EventListener):
         settings = sublime.load_settings(settings_filename)
         delay = settings.get(delay_field)
 
-
         def callback():
             '''
             Must use this callback for ST2 compatibility
             '''
+            logger.info("Saving %s", view.file_name())
             view.run_command("save")
-
 
         def debounce_save():
             '''
@@ -67,10 +68,11 @@ class AutoSaveListener(sublime_plugin.EventListener):
             if len(AutoSaveListener.save_queue) > 1:
                 AutoSaveListener.save_queue.pop()
             else:
+                logger.debug("save_queue depleted, scheduling callback...")
                 sublime.set_timeout(callback, 0)
                 AutoSaveListener.save_queue = []
 
-
+        # If auto_save_on_modified is enabled AND the view has an associated file:
         if settings.get(on_modified_field) and view.file_name():
             AutoSaveListener.save_queue.append(0) # Append to queue for every on_modified event.
             Timer(delay, debounce_save).start() # Debounce save by the specified delay.
@@ -86,8 +88,10 @@ class AutoSaveCommand(sublime_plugin.TextCommand):
         settings = sublime.load_settings(settings_filename)
 
         if settings.get(on_modified_field):
+            logger.info("Toggling auto-save off.")
             settings.set(on_modified_field, False)
             sublime.status_message("AutoSave Turned Off")
         else:
+            logger.info("Toggling auto-save on.")
             settings.set(on_modified_field, True)
             sublime.status_message("AutoSave Turned On")
