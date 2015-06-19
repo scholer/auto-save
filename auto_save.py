@@ -89,15 +89,13 @@ class AutoSaveCommand(sublime_plugin.WindowCommand):
 
   def run(self, enable=None):
     '''
-    This is used to toggle auto-save on and off.
-    The user will generally bind this to a keystroke, e.g. ctrl+alt+s.
-    If enable is given, auto save will be enabled (if True) or disabled (if False).
+    Toggle auto-save on and off. Can be bound to a keystroke, e.g. ctrl+alt+s.
+    If enable argument is given, auto save will be enabled (if True) or disabled (if False).
     If enable is not provided, auto save will be toggled (on if currently off and vice versa).
     '''
     settings = sublime.load_settings(settings_filename)
     if enable is None: # toggle
       enable = not settings.get(on_modified_field)
-    on_or_off = "On" if enable else "Off"
-    logger.info("Toggling auto-save %s.", on_or_off)
+    logger.info("Toggling auto-save %s.", "On" if enable else "Off")
     settings.set(on_modified_field, enable)
-    sublime.status_message("AutoSave Turned %s" % on_or_off)
+    sublime.status_message("AutoSave Turned %s" % ("On" if enable else "Off"))
