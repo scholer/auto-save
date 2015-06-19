@@ -49,19 +49,8 @@ class AutoSaveListener(sublime_plugin.EventListener):
   save_queue = [] # Save queue for on_modified events.
 
   def on_modified(self, view):
-    '''
-    Invoked whenever the view's document is modified.
-    '''
-    # Note: It seems on_modified is actually called twice when re-loading a document.
-    # The first time, view.is_dirty() is True, the second it is False.
-    # Adding check for view.is_dirty() in the callback should do the
-    # trick to prevent excessive saving conflicts.
     settings = sublime.load_settings(settings_filename)
-    if not settings.get(on_modified_field):
-      # auto-save not activated
-      return
-    if not view.is_dirty():
-      logger.debug("on_modified invoked, but view is not dirty, so not scheduling auto-save.")
+    if not (settings.get(on_modified_field) and view.file_name() and view.is_dirty()):
       return
 
     delay = settings.get(delay_field)
@@ -90,9 +79,8 @@ class AutoSaveListener(sublime_plugin.EventListener):
         AutoSaveListener.save_queue = []
 
     # If auto_save_on_modified is enabled AND the view has an associated file:
-    if settings.get(on_modified_field) and view.file_name() and view.is_dirty():
-      AutoSaveListener.save_queue.append(0) # Append to queue for every on_modified event.
-      Timer(delay, debounce_save).start() # Debounce save by the specified delay.
+    AutoSaveListener.save_queue.append(0) # Append to queue for every on_modified event.
+    Timer(delay, debounce_save).start() # Debounce save by the specified delay.
 
 
 class AutoSaveCommand(sublime_plugin.WindowCommand):
