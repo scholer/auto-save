@@ -55,9 +55,9 @@ class AutoSaveListener(sublime_plugin.EventListener):
     Timer(delay, debounce_save).start() # Debounce save by the specified delay.
 
 
-class AutoSaveCommand(sublime_plugin.TextCommand):
+class AutoSaveCommand(sublime_plugin.WindowCommand):
 
-  def run(self, view):
+  def run(self, enable=None):
     settings = sublime.load_settings(settings_filename)
 
     if settings.get(on_modified_field):
