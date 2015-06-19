@@ -60,7 +60,6 @@ class AutoSaveListener(sublime_plugin.EventListener):
       Must use this callback for ST2 compatibility
       '''
       if view.is_dirty() and not view.is_loading():
-        # This check seems to do the trick, preventing auto-save from saving file after reload from disk.
         logger.debug("Auto-save: Saving %s", view.file_name())
         view.run_command("save")
       else:
@@ -78,14 +77,12 @@ class AutoSaveListener(sublime_plugin.EventListener):
         sublime.set_timeout(callback, 0)
         AutoSaveListener.save_queue = []
 
-    # If auto_save_on_modified is enabled AND the view has an associated file:
+
     AutoSaveListener.save_queue.append(0) # Append to queue for every on_modified event.
     Timer(delay, debounce_save).start() # Debounce save by the specified delay.
 
 
 class AutoSaveCommand(sublime_plugin.WindowCommand):
-  # Changed to be a Window command. Its effects are global and it doesn't use the active view...
-  # We could have the option of having a per-view auto-save toggle in addition to a global one.
 
   def run(self, enable=None):
     '''
