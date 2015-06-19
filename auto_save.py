@@ -10,6 +10,8 @@ import sublime
 import sublime_plugin
 from threading import Timer
 
+import logging
+logger = logging.getLogger(__name__)
 
 settings_filename = "auto_save.sublime-settings"
 on_modified_field = "auto_save_on_modified"
