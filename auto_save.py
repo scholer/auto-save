@@ -95,20 +95,21 @@ class AutoSaveListener(sublime_plugin.EventListener):
             Timer(delay, debounce_save).start() # Debounce save by the specified delay.
 
 
-class AutoSaveCommand(sublime_plugin.TextCommand):
+class AutoSaveCommand(sublime_plugin.WindowCommand):
+    # Changed to be a Window command. Its effects are global and it doesn't use the active view...
+    # We could have the option of having a per-view auto-save toggle in addition to a global one.
 
-    def run(self, view):
+    def run(self, enable=None):
         '''
         This is used to toggle auto-save on and off.
         The user will generally bind this to a keystroke, e.g. ctrl+alt+s.
+        If enable is given, auto save will be enabled (if True) or disabled (if False).
+        If enable is not provided, auto save will be toggled (on if currently off and vice versa).
         '''
         settings = sublime.load_settings(settings_filename)
-
-        if settings.get(on_modified_field):
-            logger.info("Toggling auto-save off.")
-            settings.set(on_modified_field, False)
-            sublime.status_message("AutoSave Turned Off")
-        else:
-            logger.info("Toggling auto-save on.")
-            settings.set(on_modified_field, True)
-            sublime.status_message("AutoSave Turned On")
+        if enable is None: # toggle
+            enable = not settings.get(on_modified_field)
+        on_or_off = "On" if enable else "Off"
+        logger.info("Toggling auto-save %s.", on_or_off)
+        settings.set(on_modified_field, enable)
+        sublime.status_message("AutoSave Turned %s" % on_or_off)
