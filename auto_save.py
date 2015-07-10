@@ -55,6 +55,7 @@ class AutoSaveListener(sublime_plugin.EventListener):
 
     delay = settings.get(delay_field)
 
+
     def callback():
       '''
       Must use this callback for ST2 compatibility
@@ -82,7 +83,7 @@ class AutoSaveListener(sublime_plugin.EventListener):
     Timer(delay, debounce_save).start() # Debounce save by the specified delay.
 
 
-class AutoSaveCommand(sublime_plugin.WindowCommand):
+class AutoSaveCommand(sublime_plugin.ApplicationCommand):
 
   def run(self, enable=None):
     '''
